@@ -1,0 +1,17 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  stars: number;
+}
+
+const { stars } = Astro.props;
+---
+
+<div class="flex flex-row gap-2">
+  {
+    Array.from({ length: stars }, (_, index) => {
+      <Icon name="star" id="index" class="h-12 w-full" color="#FFFF00" />;
+    })
+  }
+</div>
