@@ -1,5 +1,6 @@
 import { nextui } from '@nextui-org/react'
 
+
 /** @type {import('tailwindcss').Config} */
 const defaultTheme = require('tailwindcss/defaultTheme')
 export default {

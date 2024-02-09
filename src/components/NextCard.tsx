@@ -1,31 +1,66 @@
+
 import { Card, CardBody, CardHeader, User } from "@nextui-org/react";
-import Reviewer from "./Reviewer";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+
+export default function Reviews() {
+  const [data, setData] = useState<Reviewer[]>([]);
+  
+  async function getData(){
+    await fetch(
+      "https://dummyjson.com/users?limit=5&select=id,firstName,lastName,age,image"
+    )
+    .then((res) => res.json())
+    .then((res) => setData(res.users))
+    .catch((err) => console.error(err));
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+  
+  return(
+    <div>
+      {data.map((review, index) => 
+        <NextCard key={review.id} reviewer={review} header={reviewTitles[index % 5]} index={index} />
+      )}
+    </div>
+  )
+}
 
 
-export default function NextCard({ header }: { header: string }) {
-    const [text, setText] = useState<string>('');
-
-    async function getRandomText(){
-        const respone = await fetch("https://loripsum.net/api/1/short");
-        const data = await respone.text();
-        console.log(data);
-        
-        setText(data);
-    }
-    useEffect(()=>{
-        getRandomText();
-    },[])
+function NextCard({reviewer, header, index} : NextCardProps) {
 
   return (
-    <Card className="px-4 py-4">
-      <CardHeader className="pb-0 pt-2 px-4 flex-row items-start align-middle">
-        <Reviewer name="Jane Doe" />
-        <p className="text-tiny uppercase font-bold">{header}</p>
+    <Card className="p-2">
+      <CardHeader className="flex justify-between">
+        <User className=""
+         name={`${reviewer.firstName} ${reviewer.lastName.charAt(0).toUpperCase()}.`} 
+        avatarProps={{src: reviewer.image}}
+        />
+        <p className="text-sm font-semibold uppercase">{header}</p>
       </CardHeader>
       <CardBody className="overflow-visible py-2">
-        <p>{text}</p>
+        <p>Placeholder</p>
       </CardBody>
     </Card>
   );
 }
+
+
+interface NextCardProps {
+  reviewer: Reviewer;
+  header: string;
+  index: number;
+}
+
+type Reviewer = {
+  id: string,
+  firstName: string,
+  lastName: string,
+  age: number,
+  image: string
+}
+
+const reviewTitles = [
+  'Great Service!', 'I will always come here', 'Quick and Fast!', 'Low Prices!'
+];
