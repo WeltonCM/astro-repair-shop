@@ -4,24 +4,36 @@ import { useState, useEffect } from "react";
 
 export default function Reviews() {
   const [data, setData] = useState<Reviewer[]>([]);
+  const [text, setText] = useState<string[]>([]);
   
   async function getData(){
     await fetch(
-      "https://dummyjson.com/users?limit=5&select=id,firstName,lastName,age,image"
+      "https://randomuser.me/api/?results=8&inc=name,email,id,picture", 
     )
     .then((res) => res.json())
-    .then((res) => setData(res.users))
+    .then((res) => setData(res.results))
+    .catch((err) => console.error(err));
+  };
+
+  async function getText() {
+    await fetch('https://loripsum.net/api/8/short')
+    .then((res) => res.json())
+    .then((res) => {
+
+      setText(res.data.split('\n'))
+    })
     .catch((err) => console.error(err));
   }
 
   useEffect(() => {
     getData();
+    getText();
   }, []);
   
   return(
     <div>
       {data.map((review, index) => 
-        <NextCard key={review.id} reviewer={review} header={reviewTitles[index % 5]} index={index} />
+        <NextCard key={review.id.value} reviewer={review} header={reviewTitles[index % 8]} index={index} />
       )}
     </div>
   )
@@ -34,13 +46,13 @@ function NextCard({reviewer, header, index} : NextCardProps) {
     <Card className="p-2">
       <CardHeader className="flex justify-between">
         <User className=""
-         name={`${reviewer.firstName} ${reviewer.lastName.charAt(0).toUpperCase()}.`} 
-        avatarProps={{src: reviewer.image}}
+         name={`${reviewer.name.first} ${reviewer.name.last.charAt(0).toUpperCase()}.`} 
+        avatarProps={{src: reviewer.picture.thumbnail}}
         />
         <p className="text-sm font-semibold uppercase">{header}</p>
       </CardHeader>
       <CardBody className="overflow-visible py-2">
-        <p>Placeholder</p>
+        <div>{text[index]}</div>
       </CardBody>
     </Card>
   );
@@ -54,11 +66,10 @@ interface NextCardProps {
 }
 
 type Reviewer = {
-  id: string,
-  firstName: string,
-  lastName: string,
-  age: number,
-  image: string
+  id: {name: string, value: string},
+  name: {title: string, first: string, last: string},
+  email: string,
+  picture: {large: string, medium: string, thumbnail: string}
 }
 
 const reviewTitles = [
